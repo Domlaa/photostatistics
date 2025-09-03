@@ -89,11 +89,10 @@ def save_json_file(json_data, filename):
 
 
 if __name__ == "__main__":
-    # data = get_raw_metadata(r"E:\\Photo2024")
-
-    data = get_raw_metadata(r"/Volumes/one/canon2025")
+    data = get_raw_metadata(r"E:\\Photo2024")
+    # data = get_raw_metadata(r"/Volumes/one/canon2025")
     print(f"read file: {len(data)}")
-    save_json_file(data, "canon2025.json")
+    save_json_file(data, "canon2024.json")
 
 
 

@@ -2,6 +2,7 @@
 .idea/*
 .DS_Store
 photo_db.sqlite
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

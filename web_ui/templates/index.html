@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄影数据统计</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/v5/echarts-wordcloud.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{count_start}}——{{count_end}}</h1>
+    <div>
+        <p class="mt-3">期间共拍摄</p>
+        <p id="total_shot" class="first-time">{{total_shot}}</p>
+        <div><br></div>
+    </div>
+    <div id="echarts-month_count" style="width: 800px; height: 600px;"></div>
+    <div id="echarts-parent">
+        <h2>拍摄统计</h2>
+        <div id="echarts-years" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-hour" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-month" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-month-shot" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-focal-seq-10" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-lens" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-aperture" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-iso" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
+    </div>
+    <div id="echarts-wordcloud" style="width: 800px; height: 800px;"></div>
+    <div id="echarts-calendar" style="width: 800px; height: 300px;"></div>
+
+
+    <script>
+
+        function month(time_range) {
+            const requestData = {
+                wxid: wxid,
+                time_range: time_range
+            };
+            fetch('/month_count', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(chartOptions => {
+                    // 在这里使用 ECharts 渲染图表
+                    var myChart = echarts.init(document.getElementById('echarts-month_count'));
+                    var option = chartOptions.chart_data;
+                    myChart.setOption(JSON.parse(option));
+                });
+        }
+
+        function calendar(time_range) {
+            const requestData = {
+                wxid: wxid,
+                time_range: time_range
+            };
+            fetch('/calendar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(chartOptions => {
+                    // 在这里使用 ECharts 渲染图表
+                    var myChart = echarts.init(document.getElementById('echarts-calendar'));
+                    var option = chartOptions.chart_data;
+                    myChart.setOption(JSON.parse(option));
+                });
+        }
+
+        function message_counter(time_range) {
+            const requestData = {
+                wxid: wxid,
+                time_range: time_range
+            };
+            fetch('/message_counter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(chartOptions => {
+                    var parent = document.getElementById('echarts-parent')
+                    // 在这里使用 ECharts 渲染图表
+                    var myChart = echarts.init(document.getElementById('echarts-sender'));
+                    var option = chartOptions.chart_data_sender;
+                    myChart.setOption(JSON.parse(option));
+
+                    var myChart1 = echarts.init(document.getElementById('echarts-types'));
+                    var option = chartOptions.chart_data_types;
+                    myChart1.setOption(JSON.parse(option));
+
+                    var myChart2 = echarts.init(document.getElementById('echarts-weekday'));
+                    var option = chartOptions.chart_data_weekday;
+                    myChart2.setOption(JSON.parse(option));
+
+                    var echat = document.getElementById('echarts-chat');
+                    var echatday = document.getElementById('echarts-chat-day');
+                    var eowls = document.getElementById('echarts-night-owls');
+
+                    if (wxid.includes('@chatroom')) {
+                        var myChart3 = echarts.init(echat);
+                        var myChart4 = echarts.init(echatday);
+                        var myChart5 = echarts.init(eowls);
+
+                        var option = chartOptions.chart_data_chat;
+                        myChart3.setOption(JSON.parse(option));
+
+                        var option = chartOptions.chart_data_chat_day;
+                        myChart4.setOption(JSON.parse(option));
+
+                        var option = chartOptions.chart_data_night_owls;
+                        myChart5.setOption(JSON.parse(option));
+                    } else {
+                        parent.removeChild(echat);
+                        parent.removeChild(echatday);
+                        parent.removeChild(eowls);
+                    }
+                });
+        }
+        //var time_range=['1997-01-01 00:00:00','2035-01-01 00:00:00']
+        var time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
+        message_counter(time_range);
+        month_count(time_range);
+        calendar(time_range);
+    </script>
+</body>
+
+</html>
