@@ -86,12 +86,11 @@
                 });
         }
 
-        function message_counter(time_range) {
+        function focal_seq_10(time_range) {
             const requestData = {
-                wxid: wxid,
                 time_range: time_range
             };
-            fetch('/message_counter', {
+            fetch('/focal_seq_10', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -99,50 +98,20 @@
                 body: JSON.stringify(requestData)
             })
                 .then(response => response.json())
-                .then(chartOptions => {
+                .then(resp => {
                     var parent = document.getElementById('echarts-parent')
                     // 在这里使用 ECharts 渲染图表
-                    var myChart = echarts.init(document.getElementById('echarts-sender'));
-                    var option = chartOptions.chart_data_sender;
-                    myChart.setOption(JSON.parse(option));
+                    var focal10 = document.getElementById('echarts-focal-seq-10');
+                    var focal10Bar = echarts.init(focal10);
+                    var focal10Data = resp.chart_data_focal_seq_10;
+                    focal10Bar.setOption(JSON.parse(focal10Data));
 
-                    var myChart1 = echarts.init(document.getElementById('echarts-types'));
-                    var option = chartOptions.chart_data_types;
-                    myChart1.setOption(JSON.parse(option));
 
-                    var myChart2 = echarts.init(document.getElementById('echarts-weekday'));
-                    var option = chartOptions.chart_data_weekday;
-                    myChart2.setOption(JSON.parse(option));
-
-                    var echat = document.getElementById('echarts-chat');
-                    var echatday = document.getElementById('echarts-chat-day');
-                    var eowls = document.getElementById('echarts-night-owls');
-
-                    if (wxid.includes('@chatroom')) {
-                        var myChart3 = echarts.init(echat);
-                        var myChart4 = echarts.init(echatday);
-                        var myChart5 = echarts.init(eowls);
-
-                        var option = chartOptions.chart_data_chat;
-                        myChart3.setOption(JSON.parse(option));
-
-                        var option = chartOptions.chart_data_chat_day;
-                        myChart4.setOption(JSON.parse(option));
-
-                        var option = chartOptions.chart_data_night_owls;
-                        myChart5.setOption(JSON.parse(option));
-                    } else {
-                        parent.removeChild(echat);
-                        parent.removeChild(echatday);
-                        parent.removeChild(eowls);
-                    }
                 });
         }
         //var time_range=['1997-01-01 00:00:00','2035-01-01 00:00:00']
         var time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-        message_counter(time_range);
-        month_count(time_range);
-        calendar(time_range);
+        focal_seq_10(time_range);
     </script>
 </body>
 
