@@ -31,15 +31,16 @@
         <div id="echarts-shot-calendar" style="width: 800px; height: 300px;"></div>
         <div id="echarts-lens" style="width: 800px; height: 600px;"></div>
 
+        <div id="echarts-aperture" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-iso" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
+
         <div id="echarts-years" style="width: 800px; height: 600px;"></div>
         <div id="echarts-hour" style="width: 800px; height: 600px;"></div>
         <div id="echarts-month" style="width: 800px; height: 600px;"></div>
         <div id="echarts-month-shot" style="width: 800px; height: 600px;"></div>
         <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
 
-        <div id="echarts-aperture" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-iso" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
     </div>
     <div id="echarts-wordcloud" style="width: 800px; height: 800px;"></div>
     <div id="echarts-calendar" style="width: 800px; height: 300px;"></div>
@@ -113,6 +114,15 @@
 
                     var lens = echarts.init(document.getElementById('echarts-lens'));
                     lens.setOption(JSON.parse(resp.chart_data_lens));
+
+                    var iso = echarts.init(document.getElementById('echarts-iso'));
+                    iso.setOption(JSON.parse(resp.chart_data_iso));
+
+                    var aperture = echarts.init(document.getElementById('echarts-aperture'));
+                    aperture.setOption(JSON.parse(resp.chart_data_aperture));
+
+                    var shutter = echarts.init(document.getElementById('echarts-shutter'));
+                    shutter.setOption(JSON.parse(resp.chart_data_shutter));
 
                 });
         }

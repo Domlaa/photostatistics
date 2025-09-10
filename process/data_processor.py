@@ -15,3 +15,15 @@ class DataProcessor:
     # 镜头使用比例 饼图
     def lens_use_rate(self, time_range) -> {}:
         raise NotImplementedError
+
+    # ISO 饼图
+    def iso_use_rate(self, time_range) -> {}:
+        raise NotImplementedError
+
+    # shutter 饼图
+    def shutter_use_rate(self, time_range) -> {}:
+        raise NotImplementedError
+
+    # aperture 饼图
+    def aperture_use_rate(self, time_range) -> {}:
+        raise NotImplementedError

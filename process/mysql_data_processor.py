@@ -67,9 +67,53 @@ class MysqlDataProcessor(DataProcessor):
             # 转换为 [(str, int)] 格式
             return [(str(name), int(cnt)) for name, cnt in rows]
 
+    def iso_use_rate(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    iso, 
+                    COUNT(*) AS usage_count
+                FROM exif
+                WHERE datetime_original BETWEEN %s AND %s
+                GROUP BY iso;
+                  """, time_range)
+            rows = cursor.fetchall()
+            # 转换为 [(str, int)] 格式
+            return [(str(name), int(cnt)) for name, cnt in rows]
+
+
+    def shutter_use_rate(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    shutter, 
+                    COUNT(*) AS usage_count
+                FROM exif
+                WHERE datetime_original BETWEEN %s AND %s
+                GROUP BY shutter;
+                  """, time_range)
+            rows = cursor.fetchall()
+            # 转换为 [(str, int)] 格式
+            return [(str(name), int(cnt)) for name, cnt in rows]
+
+
+    def aperture_use_rate(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    aperture, 
+                    COUNT(*) AS usage_count
+                FROM exif
+                WHERE datetime_original BETWEEN %s AND %s
+                GROUP BY aperture;
+                  """, time_range)
+            rows = cursor.fetchall()
+            # 转换为 [(str, int)] 格式
+            return [(str(name), int(cnt)) for name, cnt in rows]
+
 
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.lens_use_rate(time_range)
+    data = processor.aperture_use_rate(time_range)
     print(data)

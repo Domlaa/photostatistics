@@ -32,6 +32,9 @@ def sender(time_range):
     focal_seq_10_map = processor.focal_seq_10()
     shot_calendar_data = processor.shot_calendar(time_range)
     lens_use_data = processor.lens_use_rate(time_range)
+    iso_use_data = processor.iso_use_rate(time_range)
+    shutter_use_data = processor.shutter_use_rate(time_range)
+    aperture_use_data = processor.aperture_use_rate(time_range)
 
     focal_seq_data = []
     aperture_seq_data = []
@@ -93,6 +96,57 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
+    iso_pie = (
+        Pie()
+        .add(
+            "ISO使用比例",
+            iso_use_data,
+            center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
+        )
+        .set_global_opts(
+            datazoom_opts=opts.DataZoomOpts(),
+            toolbox_opts=opts.ToolboxOpts(),
+            title_opts=opts.TitleOpts(title="ISO使用占比"),
+            tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
+            legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+        )
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
+    )
+
+    shutter_pie = (
+        Pie()
+        .add(
+            "快门使用比例",
+            shutter_use_data,
+            center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
+        )
+        .set_global_opts(
+            datazoom_opts=opts.DataZoomOpts(),
+            toolbox_opts=opts.ToolboxOpts(),
+            title_opts=opts.TitleOpts(title="快门使用占比"),
+            tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
+            legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+        )
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
+    )
+
+    aperture_pie = (
+        Pie()
+        .add(
+            "光圈使用比例",
+            aperture_use_data,
+            center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
+        )
+        .set_global_opts(
+            datazoom_opts=opts.DataZoomOpts(),
+            toolbox_opts=opts.ToolboxOpts(),
+            title_opts=opts.TitleOpts(title="光圈使用占比"),
+            tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
+            legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+        )
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
+    )
+
     # 将图表的配置项（options）导出为带引号的JSON字符串
     return {
         # 焦段范围使用频率 柱状图
@@ -101,6 +155,9 @@ def sender(time_range):
         'chart_data_shot_calendar': shot_calendar.dump_options_with_quotes(),
 
         'chart_data_lens': lens_pie.dump_options_with_quotes(),
+        'chart_data_iso': iso_pie.dump_options_with_quotes(),
+        'chart_data_shutter': shutter_pie.dump_options_with_quotes(),
+        'chart_data_aperture': aperture_pie.dump_options_with_quotes(),
         # 光圈使用频率 饼图
         # 'chart_data_aperture': p1.dump_options_with_quotes(),
     }

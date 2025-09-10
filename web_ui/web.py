@@ -37,12 +37,5 @@ def statistics_shot():
     data = analysis.sender(time_range=time_range)
     return jsonify(data)
 
-# @app.route('/shot_calendar', methods=['POST'])
-# def shot_calendar():
-#     time_range = request.json.get('time_range', [])
-#     data = analysis.sender(time_range=time_range)
-#     return jsonify(data)
-
-
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
