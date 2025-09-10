@@ -18,21 +18,24 @@
 </head>
 
 <body>
-    <h1>{{count_start}}——{{count_end}}</h1>
     <div>
-        <p class="mt-3">期间共拍摄</p>
-        <p id="total_shot" class="first-time">{{total_shot}}</p>
+        <p class="a_date"><span>{{start_date}}--{{end_date}}</span></p>
+        <p class="mt-3">期间共拍摄<span id="total_shot">{{total_shot}}</span>张</p>
+
         <div><br></div>
     </div>
-    <div id="echarts-month_count" style="width: 800px; height: 600px;"></div>
+<!--    <div id="echarts-month_count" style="width: 800px; height: 600px;"></div>-->
     <div id="echarts-parent">
         <h2>拍摄统计</h2>
+        <div id="echarts-focal-seq-10" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-shot-calendar" style="width: 800px; height: 300px;"></div>
+
         <div id="echarts-years" style="width: 800px; height: 600px;"></div>
         <div id="echarts-hour" style="width: 800px; height: 600px;"></div>
         <div id="echarts-month" style="width: 800px; height: 600px;"></div>
         <div id="echarts-month-shot" style="width: 800px; height: 600px;"></div>
         <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-focal-seq-10" style="width: 800px; height: 600px;"></div>
+
         <div id="echarts-lens" style="width: 800px; height: 600px;"></div>
         <div id="echarts-aperture" style="width: 800px; height: 600px;"></div>
         <div id="echarts-iso" style="width: 800px; height: 600px;"></div>
@@ -43,7 +46,6 @@
 
 
     <script>
-
         function month(time_range) {
             const requestData = {
                 wxid: wxid,
@@ -65,12 +67,11 @@
                 });
         }
 
-        function calendar(time_range) {
+        function shot_calendar(time_range) {
             const requestData = {
-                wxid: wxid,
                 time_range: time_range
             };
-            fetch('/calendar', {
+            fetch('/shot_calendar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -86,11 +87,11 @@
                 });
         }
 
-        function focal_seq_10(time_range) {
+        function statistics_shot(time_range) {
             const requestData = {
                 time_range: time_range
             };
-            fetch('/focal_seq_10', {
+            fetch('/statistics_shot', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -99,7 +100,7 @@
             })
                 .then(response => response.json())
                 .then(resp => {
-                    var parent = document.getElementById('echarts-parent')
+                    //var parent = document.getElementById('echarts-parent')
                     // 在这里使用 ECharts 渲染图表
                     var focal10 = document.getElementById('echarts-focal-seq-10');
                     var focal10Bar = echarts.init(focal10);
@@ -107,11 +108,17 @@
                     focal10Bar.setOption(JSON.parse(focal10Data));
 
 
+                    var shot_calendar = echarts.init(document.getElementById('echarts-shot-calendar'));
+                    shot_calendar.setOption(JSON.parse(resp.chart_data_shot_calendar));
+
                 });
         }
         //var time_range=['1997-01-01 00:00:00','2035-01-01 00:00:00']
         var time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-        focal_seq_10(time_range);
+        document.querySelector(".a_date span").textContent = time_range[0] + " -- " + time_range[1];
+
+        statistics_shot(time_range);
+        //shot_calendar(time_range);
     </script>
 </body>
 

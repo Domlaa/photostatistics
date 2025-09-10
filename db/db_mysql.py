@@ -4,21 +4,31 @@ host = "localhost"
 user = "root"
 password = "123456"
 database = "photo_db"
-table = "photo_exif"
+table = "exif"
 
-def save_to_mysql(data, init):
-    conn = mysql.connector.connect(
+"""
+负责数据库初始化及数据插入
+"""
+
+
+
+def get_conn():
+    return mysql.connector.connect(
         host=host,
         user=user,
         password=password,
         database=database
     )
-    if init or not check_table(conn):
-        drop_table(conn)
-        create_table(conn)
-    insert_to_mysql(conn, data)
-    conn.commit()
-    conn.close()
+
+
+def save_to_mysql(data, init):
+    with get_conn() as conn:
+        if init or not check_table(conn):
+            drop_table(conn)
+            create_table(conn)
+        insert_to_mysql(conn, data)
+        conn.commit()
+        conn.close()
 
 
 def drop_table(conn):

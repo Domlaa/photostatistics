@@ -2,10 +2,14 @@ import os
 from datetime import datetime
 
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Pie
+from pyecharts.charts import Bar, Pie, HeatMap, Calendar
+from pyecharts.commons.utils import JsCode
 
-from db import db_mysql_photo
+from process.mysql_data_processor import MysqlDataProcessor
+
 # from db_bootstrap import init_local_db
+
+processor = MysqlDataProcessor()
 
 os.makedirs('./data/摄影统计/', exist_ok=True)
 
@@ -20,23 +24,23 @@ def get_weekday(timestamp):
     return weekdays[weekday]
 
 
+def total_shot():
+    return processor.total_shot()
+
 
 def sender(time_range):
-    focal_seq_data = []
-    focal_seq_10_data = []
-    aperture_seq_data = []
-    with db_mysql_photo.get_conn() as conn:
-        cursor = conn.cursor(dictionary=True)
-        focal_seq_10_data = db_mysql_photo.focal_seq_10(cursor, time_range)
-        print(f"焦段使用情况: {focal_seq_10_data[:10]}")
-        cursor.close()
+    focal_seq_10_map = processor.focal_seq_10()
+    shot_calendar_data = processor.shot_calendar(time_range)
 
-    focal_seq_10_map = {}
-    for row in focal_seq_10_data:
-        f_start = int(row['focal_start'])
-        key = f"{f_start}-{f_start+9} mm"
-        focal_seq_10_map[key] = row['usage_count']
-    print(f"焦段范围使用统计: {len(focal_seq_10_data)}, time_range: {time_range}")
+    focal_seq_data = []
+    aperture_seq_data = []
+
+    # focal_seq_10_map = {}
+    # for row in focal_seq_10_data:
+    #     f_start = int(row['focal_start'])
+    #     key = f"{f_start}-{f_start+9} mm"
+    #     focal_seq_10_map[key] = row['usage_count']
+    # print(f"焦段范围使用统计: {len(focal_seq_10_data)}, time_range: {time_range}")
 
     focal_seq_10_data_bar = (
         Bar()
@@ -49,12 +53,43 @@ def sender(time_range):
             yaxis_opts=opts.AxisOpts(name="焦段范围"),
         )
     )
+
+    # print(f"shot_calendar_data: {shot_calendar_data}")
+    # 添加数据到图表
+    shot_calendar = Calendar().add(
+        series_name="拍摄数量",
+        yaxis_data=shot_calendar_data,  # 指定数据 二维数组
+        calendar_opts=opts.CalendarOpts(
+            range_="2024",  # 日历图显示的年份范围
+            yearlabel_opts=opts.CalendarYearLabelOpts(is_show=False),  # 不显示年份标签
+        ),
+    ).set_global_opts(  # 设置全局选项，包括标题和可视化映射
+        tooltip_opts=opts.TooltipOpts(
+            trigger="item",
+            formatter="{c}张",  # b是日期，c是值
+            # formatter= JsCode("""
+            # function (params) {
+            #     return params.value[0] + " 拍摄 " + params.value[1] + " 张";
+            # }
+            # """)
+        ),
+        title_opts=opts.TitleOpts(title="年度拍照统计"),  # 设置标题的位置和内容
+        visualmap_opts=opts.VisualMapOpts(
+            max_=100,  # 可视化映射的最大值
+            orient="horizontal",  # 横向
+            pos_bottom="40px",  # 距离底部
+            pos_left="center"  # 居中
+        ),
+    )
+
     # 将图表的配置项（options）导出为带引号的JSON字符串
     return {
         # 焦段范围使用频率 柱状图
         'chart_data_focal_seq_10': focal_seq_10_data_bar.dump_options_with_quotes(),
+        # 拍照日期热图
+        'chart_data_shot_calendar': shot_calendar.dump_options_with_quotes()
         # 光圈使用频率 饼图
-        #'chart_data_aperture': p1.dump_options_with_quotes(),
+        # 'chart_data_aperture': p1.dump_options_with_quotes(),
     }
 
 
@@ -66,9 +101,7 @@ def get_format_date(timestamp, format_str='%Y-%m-%d') -> str:
     return dt_object.strftime(format_str)
 
 
-
 if __name__ == '__main__':
-
     # init_local_db()
 
     # data = month_count(wxid, time_range=None)
