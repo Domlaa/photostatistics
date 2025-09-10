@@ -31,16 +31,10 @@ def total_shot():
 def sender(time_range):
     focal_seq_10_map = processor.focal_seq_10()
     shot_calendar_data = processor.shot_calendar(time_range)
+    lens_use_data = processor.lens_use_rate(time_range)
 
     focal_seq_data = []
     aperture_seq_data = []
-
-    # focal_seq_10_map = {}
-    # for row in focal_seq_10_data:
-    #     f_start = int(row['focal_start'])
-    #     key = f"{f_start}-{f_start+9} mm"
-    #     focal_seq_10_map[key] = row['usage_count']
-    # print(f"焦段范围使用统计: {len(focal_seq_10_data)}, time_range: {time_range}")
 
     focal_seq_10_data_bar = (
         Bar()
@@ -82,12 +76,31 @@ def sender(time_range):
         ),
     )
 
+    lens_pie = (
+        Pie()
+        .add(
+            "镜头使用比例",
+            lens_use_data,
+            center=["30%", "50%"], # 圆心位置，距离画布左边 40%，上边 50%
+        )
+        .set_global_opts(
+            datazoom_opts=opts.DataZoomOpts(),
+            toolbox_opts=opts.ToolboxOpts(),
+            title_opts=opts.TitleOpts(title="镜头使用占比"),
+            tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
+            legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+        )
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
+    )
+
     # 将图表的配置项（options）导出为带引号的JSON字符串
     return {
         # 焦段范围使用频率 柱状图
         'chart_data_focal_seq_10': focal_seq_10_data_bar.dump_options_with_quotes(),
         # 拍照日期热图
-        'chart_data_shot_calendar': shot_calendar.dump_options_with_quotes()
+        'chart_data_shot_calendar': shot_calendar.dump_options_with_quotes(),
+
+        'chart_data_lens': lens_pie.dump_options_with_quotes(),
         # 光圈使用频率 饼图
         # 'chart_data_aperture': p1.dump_options_with_quotes(),
     }
@@ -102,13 +115,5 @@ def get_format_date(timestamp, format_str='%Y-%m-%d') -> str:
 
 
 if __name__ == '__main__':
-    # init_local_db()
-
-    # data = month_count(wxid, time_range=None)
-    # data['chart'].render("./data/聊天统计/month_count.html")
-    # data = calendar_chart(wxid, time_range=None)
-    # data['chart'].render("./data/聊天统计/calendar_chart.html")
-    # time_range = ['2024-01-01 00:00:00','2024-12-31 00:00:00']
     time_range = None
     data = sender(time_range=time_range)
-    # print(data)

@@ -11,3 +11,7 @@ class DataProcessor:
     # 类似 github 的提交日期统计图
     def shot_calendar(self, time_range) -> {}:
         raise NotImplementedError
+
+    # 镜头使用比例 饼图
+    def lens_use_rate(self, time_range) -> {}:
+        raise NotImplementedError

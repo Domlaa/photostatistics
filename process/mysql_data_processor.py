@@ -9,7 +9,6 @@ class MysqlDataProcessor(DataProcessor):
     def __init__(self):
         self.conn = db_mysql.get_conn()
 
-
     def focal_seq_10(self) -> {}:
         cursor = self.conn.cursor(dictionary=True)
         cursor.execute("""
@@ -29,7 +28,6 @@ class MysqlDataProcessor(DataProcessor):
             key = f"{f_start}-{f_start + 9} mm"
             focal_seq_10_map[key] = row['usage_count']
         return focal_seq_10_map
-
 
     def total_shot(self) -> int:
         with self.conn.cursor() as cursor:
@@ -55,12 +53,23 @@ class MysqlDataProcessor(DataProcessor):
             # 转换为 [(str, int)] 格式
             return [[str(day), int(cnt)] for day, cnt in rows]
 
+    def lens_use_rate(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    lens, 
+                    COUNT(*) AS usage_count
+                FROM exif
+                WHERE datetime_original BETWEEN %s AND %s
+                GROUP BY lens;
+                  """, time_range)
+            rows = cursor.fetchall()
+            # 转换为 [(str, int)] 格式
+            return [(str(name), int(cnt)) for name, cnt in rows]
+
+
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.shot_calendar(time_range)
+    data = processor.lens_use_rate(time_range)
     print(data)
-
-
-
-
