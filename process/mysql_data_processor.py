@@ -89,8 +89,9 @@ class MysqlDataProcessor(DataProcessor):
                     COUNT(*) AS usage_count
                 FROM exif
                 WHERE datetime_original BETWEEN %s AND %s
-                GROUP BY iso;
-                  """, time_range)
+                GROUP BY iso
+                ORDER BY iso;
+                """, time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
@@ -102,8 +103,9 @@ class MysqlDataProcessor(DataProcessor):
                     COUNT(*) AS usage_count
                 FROM exif
                 WHERE datetime_original BETWEEN %s AND %s
-                GROUP BY shutter;
-                  """, time_range)
+                GROUP BY shutter
+                ORDER BY usage_count;
+                """, time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
@@ -115,8 +117,9 @@ class MysqlDataProcessor(DataProcessor):
                     COUNT(*) AS usage_count
                 FROM exif
                 WHERE datetime_original BETWEEN %s AND %s
-                GROUP BY aperture;
-                  """, time_range)
+                GROUP BY aperture
+                ORDER BY aperture;
+                """, time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 

@@ -7,11 +7,7 @@ from pyecharts.commons.utils import JsCode
 
 from process.mysql_data_processor import MysqlDataProcessor
 
-# from db_bootstrap import init_local_db
-
 processor = MysqlDataProcessor()
-
-os.makedirs('./data/摄影统计/', exist_ok=True)
 
 
 def get_weekday(timestamp):
@@ -96,7 +92,7 @@ def sender(time_range):
         Pie()
         .add(
             "镜头使用比例",
-            lens_use_data,
+            lens_use_data, # 数据源为列表，子项为（name, value）的形式
             center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
@@ -109,11 +105,14 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    iso_pie = (
+
+    #TODO 图例过度导致混乱
+    iso_view = (
         Pie()
         .add(
             "ISO使用比例",
             iso_use_data,
+            radius=["40%", "60%"],  # 内半径40%，外半径70%，形成圆环
             center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
@@ -121,16 +120,21 @@ def sender(time_range):
             toolbox_opts=opts.ToolboxOpts(),
             title_opts=opts.TitleOpts(title="ISO使用占比"),
             tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
-            # legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+            legend_opts=opts.LegendOpts(type_="scroll",
+                                        pos_left="60%",
+                                        pos_top="20%",
+                                        orient="vertical"),
         )
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    shutter_pie = (
+    # TODO 图例过度导致混乱
+    shutter_view = (
         Pie()
         .add(
             "快门使用比例",
             shutter_use_data,
+            radius=["40%", "60%"],  # 内半径40%，外半径70%，形成圆环
             center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
@@ -138,16 +142,22 @@ def sender(time_range):
             toolbox_opts=opts.ToolboxOpts(),
             title_opts=opts.TitleOpts(title="快门使用占比"),
             tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
-            # legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+            legend_opts=opts.LegendOpts(type_="scroll",
+
+                                        pos_left="60%",
+                                        pos_top="20%",
+                                        orient="vertical"),
         )
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    aperture_pie = (
+    # TODO 图例过度导致混乱
+    aperture_view = (
         Pie()
         .add(
             "光圈使用比例",
             aperture_use_data,
+            radius=["60%", "80%"],  # 内半径40%，外半径70%，形成圆环
             center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
@@ -155,7 +165,10 @@ def sender(time_range):
             toolbox_opts=opts.ToolboxOpts(),
             title_opts=opts.TitleOpts(title="光圈使用占比"),
             tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
-            # legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+            legend_opts=opts.LegendOpts(type_="scroll",
+                                        pos_left="60%",
+                                        pos_top="10%",
+                                        orient="vertical"),
         )
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
@@ -192,17 +205,13 @@ def sender(time_range):
         'chart_data_focal_seq_10': focal_seq_10_data_bar.dump_options_with_quotes(),
         # 拍照日期热图
         'chart_data_shot_calendar': shot_calendar.dump_options_with_quotes(),
-
         'chart_data_lens': lens_pie.dump_options_with_quotes(),
-        'chart_data_iso': iso_pie.dump_options_with_quotes(),
-        'chart_data_shutter': shutter_pie.dump_options_with_quotes(),
-        'chart_data_aperture': aperture_pie.dump_options_with_quotes(),
+        'chart_data_iso': iso_view.dump_options_with_quotes(),
+        'chart_data_shutter': shutter_view.dump_options_with_quotes(),
+        'chart_data_aperture': aperture_view.dump_options_with_quotes(),
         'chart_data_hour': hour_view.dump_options_with_quotes(),
-
         'chart_data_m_shot_times': monthly_shot_times_line.dump_options_with_quotes(),
-
         'chart_data_focal_top10': focal_top_10_data_bar.dump_options_with_quotes(),
-
     }
 
 
