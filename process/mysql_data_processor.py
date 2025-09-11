@@ -50,7 +50,6 @@ class MysqlDataProcessor(DataProcessor):
             ORDER BY day
             """, time_range)
             rows = cursor.fetchall()
-            # 转换为 [(str, int)] 格式
             return [[str(day), int(cnt)] for day, cnt in rows]
 
     def lens_use_rate(self, time_range) -> {}:
@@ -64,7 +63,6 @@ class MysqlDataProcessor(DataProcessor):
                 GROUP BY lens;
                   """, time_range)
             rows = cursor.fetchall()
-            # 转换为 [(str, int)] 格式
             return [(str(name), int(cnt)) for name, cnt in rows]
 
     def iso_use_rate(self, time_range) -> {}:
@@ -78,9 +76,7 @@ class MysqlDataProcessor(DataProcessor):
                 GROUP BY iso;
                   """, time_range)
             rows = cursor.fetchall()
-            # 转换为 [(str, int)] 格式
             return [(str(name), int(cnt)) for name, cnt in rows]
-
 
     def shutter_use_rate(self, time_range) -> {}:
         with self.conn.cursor() as cursor:
@@ -93,9 +89,7 @@ class MysqlDataProcessor(DataProcessor):
                 GROUP BY shutter;
                   """, time_range)
             rows = cursor.fetchall()
-            # 转换为 [(str, int)] 格式
             return [(str(name), int(cnt)) for name, cnt in rows]
-
 
     def aperture_use_rate(self, time_range) -> {}:
         with self.conn.cursor() as cursor:
@@ -108,7 +102,20 @@ class MysqlDataProcessor(DataProcessor):
                 GROUP BY aperture;
                   """, time_range)
             rows = cursor.fetchall()
-            # 转换为 [(str, int)] 格式
+            return [(str(name), int(cnt)) for name, cnt in rows]
+
+    def shot_hour(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+            SELECT
+                HOUR(datetime_original) AS hour,
+                COUNT(*) AS usage_count
+            FROM exif
+            WHERE datetime_original BETWEEN %s AND %s
+            GROUP BY HOUR(datetime_original)
+            ORDER BY hour;
+            """, time_range)
+            rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
 

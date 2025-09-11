@@ -27,3 +27,7 @@ class DataProcessor:
     # aperture 饼图
     def aperture_use_rate(self, time_range) -> {}:
         raise NotImplementedError
+
+    # aperture 饼图
+    def shot_hour(self, time_range) -> {}:
+        raise NotImplementedError

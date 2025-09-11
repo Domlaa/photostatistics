@@ -8,7 +8,6 @@ run_flag = False
 start_time = '2024-1-01 00:00:00'
 end_time = '2024-12-31 23:59:59'
 time_range = (start_time, end_time)
-html: str = ''
 
 @app.route("/")
 def index():
@@ -37,5 +36,6 @@ def statistics_shot():
     data = analysis.sender(time_range=time_range)
     return jsonify(data)
 
+
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5001)

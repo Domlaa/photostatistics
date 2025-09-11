@@ -29,6 +29,8 @@
         <h2>拍摄统计</h2>
         <div id="echarts-focal-seq-10" style="width: 800px; height: 600px;"></div>
         <div id="echarts-shot-calendar" style="width: 800px; height: 300px;"></div>
+        <div id="echarts-hour" style="width: 800px; height: 600px;"></div>
+
         <div id="echarts-lens" style="width: 800px; height: 600px;"></div>
 
         <div id="echarts-aperture" style="width: 800px; height: 600px;"></div>
@@ -36,7 +38,7 @@
         <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
 
         <div id="echarts-years" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-hour" style="width: 800px; height: 600px;"></div>
+
         <div id="echarts-month" style="width: 800px; height: 600px;"></div>
         <div id="echarts-month-shot" style="width: 800px; height: 600px;"></div>
         <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
@@ -123,6 +125,9 @@
 
                     var shutter = echarts.init(document.getElementById('echarts-shutter'));
                     shutter.setOption(JSON.parse(resp.chart_data_shutter));
+
+                    var hour = echarts.init(document.getElementById('echarts-hour'));
+                    hour.setOption(JSON.parse(resp.chart_data_hour));
 
                 });
         }
