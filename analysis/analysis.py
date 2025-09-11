@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Pie, HeatMap, Calendar
+from pyecharts.charts import Bar, Pie, HeatMap, Calendar, Line
 from pyecharts.commons.utils import JsCode
 
 from process.mysql_data_processor import MysqlDataProcessor
@@ -36,6 +36,7 @@ def sender(time_range):
     shutter_use_data = processor.shutter_use_rate(time_range)
     aperture_use_data = processor.aperture_use_rate(time_range)
     hour_data = processor.shot_hour(time_range)
+    monthly_shot_times = processor.monthly_shot_times(time_range)
     focal_seq_data = []
 
     focal_seq_10_data_bar = (
@@ -83,7 +84,7 @@ def sender(time_range):
         .add(
             "镜头使用比例",
             lens_use_data,
-            center=["30%", "50%"], # 圆心位置，距离画布左边 40%，上边 50%
+            center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
             datazoom_opts=opts.DataZoomOpts(),
@@ -146,7 +147,6 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-
     hour_pie = (
         Pie()
         .add(
@@ -164,6 +164,19 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
+    monthly_shot_times_line = (
+        Line()
+        .add_xaxis(list(monthly_shot_times.keys()))
+        .add_yaxis('拍照次数', list(monthly_shot_times.values()))
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title="每月拍照次数统计"),
+            xaxis_opts=opts.AxisOpts(
+                name="日期",
+                axislabel_opts=opts.LabelOpts(interval=0)),
+            yaxis_opts=opts.AxisOpts(name="次数"),
+        )
+    )
+
     # 将图表的配置项（options）导出为带引号的JSON字符串
     return {
         # 焦段范围使用频率 柱状图
@@ -176,8 +189,9 @@ def sender(time_range):
         'chart_data_shutter': shutter_pie.dump_options_with_quotes(),
         'chart_data_aperture': aperture_pie.dump_options_with_quotes(),
         'chart_data_hour': hour_pie.dump_options_with_quotes(),
-        # 光圈使用频率 饼图
-        # 'chart_data_aperture': p1.dump_options_with_quotes(),
+
+        'chart_data_m_shot_times': monthly_shot_times_line.dump_options_with_quotes(),
+
     }
 
 

@@ -118,9 +118,26 @@ class MysqlDataProcessor(DataProcessor):
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
+    def monthly_shot_times(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+            SELECT
+                DATE_FORMAT(datetime_original, '%Y-%m') AS month,
+                COUNT(*) AS photos
+            FROM exif
+            WHERE datetime_original BETWEEN %s AND %s
+            GROUP BY DATE_FORMAT(datetime_original, '%Y-%m')
+            ORDER BY month;
+            """, time_range)
+            rows = cursor.fetchall()
+            map = {}
+            for row in rows:
+                map[row[0]] = row[1]
+            return map
+
 
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.aperture_use_rate(time_range)
+    data = processor.monthly_shot_times(time_range)
     print(data)

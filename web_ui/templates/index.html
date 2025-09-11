@@ -37,10 +37,9 @@
         <div id="echarts-iso" style="width: 800px; height: 600px;"></div>
         <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
 
-        <div id="echarts-years" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-m-shot-times" style="width: 1000px; height: 600px;"></div>
 
-        <div id="echarts-month" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-month-shot" style="width: 800px; height: 600px;"></div>
+        <div id="echarts-years-shot" style="width: 800px; height: 600px;"></div>
         <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
 
     </div>
@@ -128,6 +127,11 @@
 
                     var hour = echarts.init(document.getElementById('echarts-hour'));
                     hour.setOption(JSON.parse(resp.chart_data_hour));
+
+                    var m_shot_times = echarts.init(document.getElementById('echarts-m-shot-times'));
+                    m_shot_times.setOption(JSON.parse(resp.chart_data_m_shot_times));
+
+
 
                 });
         }

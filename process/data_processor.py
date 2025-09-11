@@ -28,6 +28,10 @@ class DataProcessor:
     def aperture_use_rate(self, time_range) -> {}:
         raise NotImplementedError
 
-    # aperture 饼图
+    # 拍照时间段统计
     def shot_hour(self, time_range) -> {}:
+        raise NotImplementedError
+
+    # 每月拍照次数统计
+    def monthly_shot_times(self, time_range) -> {}:
         raise NotImplementedError
