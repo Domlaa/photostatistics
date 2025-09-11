@@ -87,7 +87,8 @@ def sender(time_range):
             max_=100,  # 可视化映射的最大值
             orient="horizontal",  # 横向
             pos_bottom="40px",  # 距离底部
-            pos_left="center"  # 居中
+            pos_left="center",  # 居中,
+            range_color = ["#e5f5e0","#c7e9c0","#a1d99b","#74c476","#31a354"],  # 浅绿 → 深绿
         ),
     )
 
@@ -159,21 +160,17 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    hour_pie = (
-        Pie()
-        .add(
-            "拍照时间分布",
-            hour_data,
-            center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
-        )
+    hour_view = (
+        Bar()
+        .add_xaxis(list(hour_data.keys()))
+        .add_yaxis('次数', list(hour_data.values()))
         .set_global_opts(
-            datazoom_opts=opts.DataZoomOpts(),
-            toolbox_opts=opts.ToolboxOpts(),
             title_opts=opts.TitleOpts(title="拍照时间分布"),
-            tooltip_opts=opts.TooltipOpts(formatter="{b}: {c} ({d}%)"),  # b=名称 c=数值 d=百分比
-            # legend_opts=opts.LegendOpts(type_="scroll", pos_left="60%", pos_top="20%", orient="vertical"),
+            xaxis_opts=opts.AxisOpts(
+                name="小时",
+                axislabel_opts=opts.LabelOpts(interval=0)),
+            yaxis_opts=opts.AxisOpts(name="次数"),
         )
-        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
     monthly_shot_times_line = (
@@ -200,7 +197,7 @@ def sender(time_range):
         'chart_data_iso': iso_pie.dump_options_with_quotes(),
         'chart_data_shutter': shutter_pie.dump_options_with_quotes(),
         'chart_data_aperture': aperture_pie.dump_options_with_quotes(),
-        'chart_data_hour': hour_pie.dump_options_with_quotes(),
+        'chart_data_hour': hour_view.dump_options_with_quotes(),
 
         'chart_data_m_shot_times': monthly_shot_times_line.dump_options_with_quotes(),
 

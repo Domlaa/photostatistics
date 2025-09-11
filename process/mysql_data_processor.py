@@ -132,7 +132,8 @@ class MysqlDataProcessor(DataProcessor):
             ORDER BY hour;
             """, time_range)
             rows = cursor.fetchall()
-            return [(str(name), int(cnt)) for name, cnt in rows]
+            map = {row[0]: row[1] for row in rows}
+            return map
 
     def monthly_shot_times(self, time_range) -> {}:
         with self.conn.cursor() as cursor:
@@ -153,5 +154,5 @@ class MysqlDataProcessor(DataProcessor):
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.focal_top10(time_range)
+    data = processor.shot_hour(time_range)
     print(data)
