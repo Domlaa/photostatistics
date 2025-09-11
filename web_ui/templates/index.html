@@ -38,9 +38,9 @@
         <div id="echarts-shutter" style="width: 800px; height: 600px;"></div>
 
         <div id="echarts-m-shot-times" style="width: 1000px; height: 600px;"></div>
+         <div id="echarts-focal-top10" style="width: 800px; height: 600px;"></div>
 
         <div id="echarts-years-shot" style="width: 800px; height: 600px;"></div>
-        <div id="echarts-focal-seq" style="width: 800px; height: 600px;"></div>
 
     </div>
     <div id="echarts-wordcloud" style="width: 800px; height: 800px;"></div>
@@ -131,6 +131,8 @@
                     var m_shot_times = echarts.init(document.getElementById('echarts-m-shot-times'));
                     m_shot_times.setOption(JSON.parse(resp.chart_data_m_shot_times));
 
+                    var focal_top10 = echarts.init(document.getElementById('echarts-focal-top10'));
+                    focal_top10.setOption(JSON.parse(resp.chart_data_focal_top10));
 
 
                 });

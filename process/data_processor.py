@@ -1,11 +1,15 @@
 class DataProcessor:
 
     # 总的拍摄张数
-    def total_shot(self) -> int:
+    def total_shot(self, time_range) -> int:
         raise NotImplementedError
 
     # 10mm一组，最喜欢用的焦段
-    def focal_seq_10(self) -> {}:
+    def focal_seq_10(self, time_range) -> {}:
+        raise NotImplementedError
+
+    # 使用频率前十的焦段
+    def focal_top10(self, time_range) -> {}:
         raise NotImplementedError
 
     # 类似 github 的提交日期统计图

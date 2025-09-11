@@ -11,7 +11,7 @@ time_range = (start_time, end_time)
 
 @app.route("/")
 def index():
-    total_shot = analysis.total_shot()
+    total_shot = analysis.total_shot(time_range)
     data = {
         'total_shot': total_shot
     }

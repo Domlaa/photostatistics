@@ -9,7 +9,7 @@ class MysqlDataProcessor(DataProcessor):
     def __init__(self):
         self.conn = db_mysql.get_conn()
 
-    def focal_seq_10(self) -> {}:
+    def focal_seq_10(self, time_range) -> {}:
         cursor = self.conn.cursor(dictionary=True)
         cursor.execute("""
         SELECT
@@ -29,7 +29,23 @@ class MysqlDataProcessor(DataProcessor):
             focal_seq_10_map[key] = row['usage_count']
         return focal_seq_10_map
 
-    def total_shot(self) -> int:
+    def focal_top10(self, time_range) -> {}:
+        with self.conn.cursor() as cursor:
+            cursor.execute("""
+            SELECT 
+                focal_length, COUNT(*) as usage_count
+                from exif
+            WHERE datetime_original BETWEEN %s AND %s
+            GROUP BY focal_length
+            ORDER BY usage_count DESC
+            LIMIT 10;
+            """, time_range)
+            # 二维数组
+            rows = cursor.fetchall()
+            map = {row[0]: row[1] for row in rows}
+            return map
+
+    def total_shot(self, time_range) -> int:
         with self.conn.cursor() as cursor:
             cursor.execute("SELECT COUNT(*) FROM exif;")
             (total,) = cursor.fetchone()
@@ -130,14 +146,12 @@ class MysqlDataProcessor(DataProcessor):
             ORDER BY month;
             """, time_range)
             rows = cursor.fetchall()
-            map = {}
-            for row in rows:
-                map[row[0]] = row[1]
+            map = {row[0]: row[1] for row in rows}
             return map
 
 
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.monthly_shot_times(time_range)
+    data = processor.focal_top10(time_range)
     print(data)

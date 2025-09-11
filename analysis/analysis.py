@@ -24,12 +24,12 @@ def get_weekday(timestamp):
     return weekdays[weekday]
 
 
-def total_shot():
-    return processor.total_shot()
+def total_shot(time_range):
+    return processor.total_shot(time_range)
 
 
 def sender(time_range):
-    focal_seq_10_map = processor.focal_seq_10()
+    focal_seq_10_map = processor.focal_seq_10(time_range)
     shot_calendar_data = processor.shot_calendar(time_range)
     lens_use_data = processor.lens_use_rate(time_range)
     iso_use_data = processor.iso_use_rate(time_range)
@@ -37,7 +37,7 @@ def sender(time_range):
     aperture_use_data = processor.aperture_use_rate(time_range)
     hour_data = processor.shot_hour(time_range)
     monthly_shot_times = processor.monthly_shot_times(time_range)
-    focal_seq_data = []
+    focal_top10_data = processor.focal_top10(time_range)
 
     focal_seq_10_data_bar = (
         Bar()
@@ -48,6 +48,18 @@ def sender(time_range):
             title_opts=opts.TitleOpts(title="焦段范围使用统计"),
             xaxis_opts=opts.AxisOpts(name="使用次数", type_="value"),
             yaxis_opts=opts.AxisOpts(name="焦段范围"),
+        )
+    )
+
+    focal_top_10_data_bar = (
+        Bar()
+        .add_xaxis(list(focal_top10_data.keys()))  # 从字典的键中获取 x 轴数据（姓名）
+        .add_yaxis("最常用的焦段", list(focal_top10_data.values()))  # 从字典的值中获取 y 轴数据
+        .reversal_axis()  # 转换坐标轴，使其变为水平条形图
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title="最常用的焦段统计"),
+            xaxis_opts=opts.AxisOpts(name="使用次数", type_="value"),
+            yaxis_opts=opts.AxisOpts(name="焦段"),
         )
     )
 
@@ -191,6 +203,8 @@ def sender(time_range):
         'chart_data_hour': hour_pie.dump_options_with_quotes(),
 
         'chart_data_m_shot_times': monthly_shot_times_line.dump_options_with_quotes(),
+
+        'chart_data_focal_top10': focal_top_10_data_bar.dump_options_with_quotes(),
 
     }
 
