@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的摄影年度总结</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        header {
+            background: linear-gradient(to right, #3494E6, #EC6EAD);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .camera-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+            line-height: 1.8;
+        }
+
+        .stat-item {
+            margin-bottom: 25px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .stat-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.5rem;
+            width: 30px;
+            text-align: center;
+            color: #3494E6;
+        }
+
+        .stat-text {
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: #EC6EAD;
+            font-weight: bold;
+            padding: 2px 4px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        .controls {
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background: #3494E6;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stat-item {
+                padding-left: 35px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stat-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-camera camera-icon"></i>
+            <h1>我的年度摄影总结</h1>
+            <p class="subtitle">回顾过去一年的创作历程</p>
+        </header>
+
+        <div class="content">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <p class="stat-text">在过去的一年里，你有 <span class="highlight" id="days-with-photos">xxx</span> 天拍摄了照片。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <p class="stat-text"><span class="highlight" id="most-active-month">xx</span> 月是你拍摄次数最多的月份，一共拍了 <span
+                        class="highlight" id="photos-in-most-active-month">xx</span> 张照片，年度之最。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <p class="stat-text"><span class="highlight" id="favorite-time">xx</span> 时是你最喜欢拍照的时间段。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <p class="stat-text"><span class="highlight" id="most-productive-date">xx月xx日</span> 你摄性大发，一共拍了 <span
+                        class="highlight" id="photos-on-most-productive-day">xx</span> 张照片，年度之最。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-search"></i></div>
+                <p class="stat-text"><span class="highlight" id="fav-focal-range">xxx</span> 是你最喜欢的焦段范围。<span
+                        class="highlight" id="most-used-focal-length">xxx</span> 是你用过的最多的焦距。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-camera"></i></div>
+                <p class="stat-text"><span class="highlight" id="fav-lens">xxx</span> 是你最喜欢的一支镜头，你一共用它拍了 <span
+                        class="highlight" id="photos-with-fav-lens">xx</span> 张照片。</p>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-cog"></i></div>
+                <p class="stat-text">曝光三要素中，你最中意使用 ISO <span class="highlight" id="fav-iso">xx</span>, 快门速度 <span
+                        class="highlight" id="fav-shutter">xx</span>, 光圈 <span class="highlight"
+                        id="fav-aperture">xx</span>。</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 摄影年度总结 | 数据基于过去一年的拍摄记录</p>
+        </div>
+    </div>
+
+    <script>
+
+        function updateDataElement(data) {
+            Object.keys(data).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = data[id];
+                }
+            });
+        }
+
+        // function updateDataElement(id, value) {
+        //     const element = document.getElementById(id);
+        //     if (element) {
+        //         element.textContent = value;
+        //     }
+        // }
+
+        // function setData(data) {
+        //     updateDataElement('mostActiveMonth', data.mostActiveMonth);
+        //     updateDataElement('photosInMostActiveMonth', data.photosInMostActiveMonth);
+        //     updateDataElement('favoriteTime', data.favoriteTime);
+        //     updateDataElement('mostProductiveDate', data.mostProductiveDate);
+        //     updateDataElement('photosOnMostProductiveDay', data.photosOnMostProductiveDay);
+        //     updateDataElement('photosWithFavLens', data.photosWithFavLens);
+        //     updateDataElement('favIso', data.favIso);
+        //     updateDataElement('favShutter', data.favShutter);
+        //     updateDataElement('favAperture', data.favAperture);
+        // }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            //TODO 
+        });
+    </script>
+</body>
+
+</html>

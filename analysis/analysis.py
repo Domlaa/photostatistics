@@ -20,10 +20,6 @@ def get_weekday(timestamp):
     return weekdays[weekday]
 
 
-def total_shot(time_range):
-    return processor.total_shot(time_range)
-
-
 def sender(time_range):
     focal_seq_10_map = processor.focal_seq_10(time_range)
     shot_calendar_data = processor.shot_calendar(time_range)
@@ -34,6 +30,26 @@ def sender(time_range):
     hour_data = processor.shot_hour(time_range)
     monthly_shot_times = processor.monthly_shot_times(time_range)
     focal_top10_data = processor.focal_top10(time_range)
+
+
+    total_shot = processor.total_shot(time_range)
+    statistics_data = {}
+    # statistics_data = {
+    #     'days_with_photos': days_with_photos,
+    #     'total_photos': total_shot,
+    #     'most_active_month': most_active_month,
+    #     'photos_in_most_active_month': photos_in_most_active_month,
+    #     'favorite_time': favorite_time,
+    #     'most_productive_date': most_productive_date,
+    #     'photos_on_most_productive_day': photos_on_most_productive_day,
+    #     'fav_focal_range': fav_focal_range,
+    #     'most_used_focal_length': most_used_focal_length,
+    #     'fav_lens': fav_lens,
+    #     'photos_with_fav_lens': photos_with_fav_lens,
+    #     'fav_iso': fav_iso,
+    #     'fav_shutter': fav_shutter,
+    #     'fav_aperture': fav_aperture,
+    # }
 
     focal_seq_10_data_bar = (
         Bar()
@@ -212,6 +228,7 @@ def sender(time_range):
         'chart_data_hour': hour_view.dump_options_with_quotes(),
         'chart_data_m_shot_times': monthly_shot_times_line.dump_options_with_quotes(),
         'chart_data_focal_top10': focal_top_10_data_bar.dump_options_with_quotes(),
+        'statistics_data': statistics_data
     }
 
 

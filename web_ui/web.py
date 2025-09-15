@@ -11,11 +11,7 @@ time_range = (start_time, end_time)
 
 @app.route("/")
 def index():
-    total_shot = analysis.total_shot(time_range)
-    data = {
-        'total_shot': total_shot
-    }
-    return render_template('index.html', **data)
+    return render_template('test.html')
 
 
 def run(port=21314):

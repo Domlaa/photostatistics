@@ -63,7 +63,7 @@ class MysqlDataProcessor(DataProcessor):
             FROM exif
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY DATE(datetime_original)
-            ORDER BY day
+            ORDER BY cnt
             """, time_range)
             rows = cursor.fetchall()
             return [[str(day), int(cnt)] for day, cnt in rows]
@@ -157,5 +157,33 @@ class MysqlDataProcessor(DataProcessor):
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
     time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
-    data = processor.shot_hour(time_range)
-    print(data)
+
+    focal_seq_10_map = processor.focal_seq_10(time_range)
+    shot_calendar_data = processor.shot_calendar(time_range)
+    lens_use_data = processor.lens_use_rate(time_range)
+    iso_use_data = processor.iso_use_rate(time_range)
+    shutter_use_data = processor.shutter_use_rate(time_range)
+    aperture_use_data = processor.aperture_use_rate(time_range)
+    hour_data = processor.shot_hour(time_range)
+    monthly_shot_times = processor.monthly_shot_times(time_range)
+    focal_top10_data = processor.focal_top10(time_range)
+
+    total_shot = processor.total_shot(time_range)
+
+    # statistics_data = {
+    #     'days_with_photos': days_with_photos,
+    #     'total_photos': total_shot,
+    #     'most_active_month': most_active_month,
+    #     'photos_in_most_active_month': photos_in_most_active_month,
+    #     'favorite_time': favorite_time,
+    #     'most_productive_date': most_productive_date,
+    #     'photos_on_most_productive_day': photos_on_most_productive_day,
+    #     'fav_focal_range': fav_focal_range,
+    #     'most_used_focal_length': most_used_focal_length,
+    #     'fav_lens': fav_lens,
+    #     'photos_with_fav_lens': photos_with_fav_lens,
+    #     'fav_iso': fav_iso,
+    #     'fav_shutter': fav_shutter,
+    #     'fav_aperture': fav_aperture,
+    # }
+    # print(statistics_data)
