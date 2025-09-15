@@ -168,7 +168,8 @@ if __name__ == '__main__':
     monthly_shot_times = processor.monthly_shot_times(time_range)
     focal_top10_data = processor.focal_top10(time_range)
 
-    total_shot = processor.total_shot(time_range)
+
+    print()
 
     # statistics_data = {
     #     'days_with_photos': days_with_photos,

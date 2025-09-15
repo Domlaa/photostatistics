@@ -31,18 +31,33 @@ def sender(time_range):
     monthly_shot_times = processor.monthly_shot_times(time_range)
     focal_top10_data = processor.focal_top10(time_range)
 
+    total_shot = processor.total_shot(time_range)
 
     total_shot = processor.total_shot(time_range)
-    statistics_data = {}
+    days_with_photos = len(shot_calendar_data)
+    most_active_month = max(monthly_shot_times, key=monthly_shot_times.get)
+    photos_in_most_active_month = max(monthly_shot_times.values())
+    favorite_time = max(hour_data, key=hour_data.get)
+    # 找到 value 最大的那一项
+    most_productive = max(shot_calendar_data, key=lambda x: x[1])
+    most_productive_date = most_productive[0]
+    photos_on_most_productive_day = most_productive[1]
+
+    fav_focal_range_t = max(focal_top10_data.items(), key=lambda x: x[1])
+    fav_focal_range = fav_focal_range_t[0]
+
+    statistics_data = {
+        'days_with_photos': days_with_photos,
+        'total_photos': total_shot,
+        'most_active_month': most_active_month,
+        'photos_in_most_active_month': photos_in_most_active_month,
+        'favorite_time': favorite_time,
+        'most_productive_date': most_productive_date,
+        'photos_on_most_productive_day': photos_on_most_productive_day,
+        'fav_focal_range': fav_focal_range,
+    }
     # statistics_data = {
-    #     'days_with_photos': days_with_photos,
-    #     'total_photos': total_shot,
-    #     'most_active_month': most_active_month,
-    #     'photos_in_most_active_month': photos_in_most_active_month,
-    #     'favorite_time': favorite_time,
-    #     'most_productive_date': most_productive_date,
-    #     'photos_on_most_productive_day': photos_on_most_productive_day,
-    #     'fav_focal_range': fav_focal_range,
+
     #     'most_used_focal_length': most_used_focal_length,
     #     'fav_lens': fav_lens,
     #     'photos_with_fav_lens': photos_with_fav_lens,
@@ -100,7 +115,7 @@ def sender(time_range):
             orient="horizontal",  # 横向
             pos_bottom="40px",  # 距离底部
             pos_left="center",  # 居中,
-            range_color = ["#e5f5e0","#c7e9c0","#a1d99b","#74c476","#31a354"],  # 浅绿 → 深绿
+            range_color=["#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#31a354"],  # 浅绿 → 深绿
         ),
     )
 
@@ -108,7 +123,7 @@ def sender(time_range):
         Pie()
         .add(
             "镜头使用比例",
-            lens_use_data, # 数据源为列表，子项为（name, value）的形式
+            lens_use_data,  # 数据源为列表，子项为（name, value）的形式
             center=["30%", "50%"],  # 圆心位置，距离画布左边 40%，上边 50%
         )
         .set_global_opts(
@@ -121,8 +136,7 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-
-    #TODO 图例过度导致混乱
+    # TODO 图例过度导致混乱
     iso_view = (
         Pie()
         .add(
