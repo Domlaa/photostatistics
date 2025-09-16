@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Union
 
 from db import db_mysql
@@ -33,8 +34,9 @@ class MysqlDataProcessor(DataProcessor):
         with self.conn.cursor() as cursor:
             cursor.execute("""
             SELECT 
-                focal_length, COUNT(*) as usage_count
-                from exif
+                focal_length, 
+                COUNT(*) AS usage_count
+            FROM exif
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY focal_length
             ORDER BY usage_count DESC
@@ -47,7 +49,12 @@ class MysqlDataProcessor(DataProcessor):
 
     def total_shot(self, _time_range) -> int:
         with self.conn.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) FROM exif;")
+            cursor.execute("""
+            SELECT 
+                COUNT(*) 
+            FROM exif
+            WHERE datetime_original BETWEEN %s AND %s;
+            """, _time_range)
             (total,) = cursor.fetchone()
             return total
 
@@ -156,7 +163,12 @@ class MysqlDataProcessor(DataProcessor):
 
 if __name__ == '__main__':
     processor = MysqlDataProcessor()
-    time_range = ['2024-01-01 00:00:00', '2024-12-31 23:59:59']
+
+    time_range = ['2025-01-01 00:00:00', '2025-12-31 23:59:59']
+    s_dt = datetime.strptime(time_range[0], "%Y-%m-%d %H:%M:%S")
+    e_dt = datetime.strptime(time_range[1], "%Y-%m-%d %H:%M:%S")
+    start_year = s_dt.year
+    end_year = e_dt.year
 
     focal_seq_10_map = processor.focal_seq_10(time_range)
     shot_calendar_data = processor.shot_calendar(time_range)
@@ -195,4 +207,4 @@ if __name__ == '__main__':
         'fav_shutter': fav_shutter[0],
         'fav_aperture': fav_aperture[0],
     }
-    print(statistics_data)
+    print(shot_calendar_data)

@@ -17,6 +17,12 @@ def get_weekday(timestamp):
 
 
 def sender(_time_range):
+
+    s_dt = datetime.strptime(_time_range[0], "%Y-%m-%d %H:%M:%S")
+    e_dt = datetime.strptime(_time_range[1], "%Y-%m-%d %H:%M:%S")
+    start_year = s_dt.year
+    end_year = e_dt.year
+
     focal_seq_10_map = processor.focal_seq_10(_time_range)
     shot_calendar_data = processor.shot_calendar(_time_range)
     lens_use_data = processor.lens_use_rate(_time_range)
@@ -80,13 +86,12 @@ def sender(_time_range):
         )
     )
 
-    # print(f"shot_calendar_data: {shot_calendar_data}")
-    # 添加数据到图表
+
     shot_calendar = Calendar().add(
         series_name="拍摄数量",
         yaxis_data=shot_calendar_data,  # 指定数据 二维数组
         calendar_opts=opts.CalendarOpts(
-            range_="2024",  # 日历图显示的年份范围
+            range_=[s_dt, e_dt],  # 日历图显示的年份范围
             yearlabel_opts=opts.CalendarYearLabelOpts(is_show=False),  # 不显示年份标签
         ),
     ).set_global_opts(  # 设置全局选项，包括标题和可视化映射
