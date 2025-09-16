@@ -4,9 +4,6 @@ import subprocess
 from pathlib import Path
 
 from common import utils
-from processor.mysql_data_processor import MysqlDataProcessor
-
-processor = MysqlDataProcessor
 
 # 需要提取的 EXIF 字段
 TAGS = [
@@ -51,7 +48,7 @@ def get_raw_metadata(folder_path, exiftool_path="exiftool"):
 
     return results
 
-def handle_exif_info_array(metadata_list, processor):
+def handle_exif_info_array(metadata_list):
     results = []
     for meta in metadata_list:
         # 按顺序拼接字段值
@@ -73,20 +70,9 @@ def handle_exif_info_array(metadata_list, processor):
             "md5": md5_value,
             "filepath": meta["SourceFile"],
         })
-    processor.save_to_db(data, False)
-    # db_mysql.save_to_mysql(data, False)
-    # db_sqlite.save_to_sqlite(data, True)
 
 
 
-
-if __name__ == "__main__":
-    data = get_raw_metadata(r"E:\\Photo2024")
-    # data = get_raw_metadata(r"/Volumes/one/canon2025")
-    print(f"read file: {len(data)}")
-    # 因为每次读取图片的exif信息，耗时较长，所以建议先读取存为json。
-    # 再尝试存入 DB。
-    utils.save_json_file(data, "canon2024.json")
 
 
 

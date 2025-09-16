@@ -2,11 +2,7 @@ from datetime import datetime
 from pyecharts import options as opts
 from pyecharts.charts import Bar, Pie, Calendar, Line
 
-from .analyzer.mysql_data_analyzer import MysqlDataAnalyzer
-
-analyzer = MysqlDataAnalyzer()
-
-def get_analysis_data(_time_range):
+def get_analysis_data(analyzer, _time_range):
 
     s_dt = datetime.strptime(_time_range[0], "%Y-%m-%d %H:%M:%S")
     e_dt = datetime.strptime(_time_range[1], "%Y-%m-%d %H:%M:%S")

@@ -1,11 +1,7 @@
+from common import const
 from process.processor.data_processor import DataProcessor
 import mysql.connector
 
-host = "localhost"
-user = "root"
-password = "123456"
-database = "photo_db"
-table = "exif"
 
 class MysqlDataProcessor(DataProcessor):
 
@@ -14,10 +10,10 @@ class MysqlDataProcessor(DataProcessor):
 
     def get_conn(self):
         return mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
+            host=const.host,
+            user=const.user,
+            password=const.password,
+            database=const.database
         )
 
     def save_to_db(self, data, init):
@@ -33,7 +29,7 @@ class MysqlDataProcessor(DataProcessor):
             sql = """
                DROP TABLE IF EXISTS %s;
                """
-            cursor.execute(sql, table)
+            cursor.execute(sql, const.table)
 
     def create_table(self):
         with self.conn.cursor() as cursor:
@@ -50,7 +46,7 @@ class MysqlDataProcessor(DataProcessor):
                filepath TEXT
                );
                """
-            cursor.execute(sql, table)
+            cursor.execute(sql, const.table)
             cursor.close()
 
     def check_table(self):
@@ -60,7 +56,7 @@ class MysqlDataProcessor(DataProcessor):
                         FROM information_schema.tables
                         WHERE table_schema = %s AND table_name = %s
                     """
-            cursor.execute(query, (database, table))
+            cursor.execute(query, (const.database, const.table))
             exist = cursor.fetchone()[0] > 0
             return exist
 
@@ -73,7 +69,7 @@ class MysqlDataProcessor(DataProcessor):
             """
             for row in data:
                 cursor.execute(sql, (
-                    table,
+                    const.table,
                     row["filename"],
                     row["datetime_original"],
                     row["aperture"],

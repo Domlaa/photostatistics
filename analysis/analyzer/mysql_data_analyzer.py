@@ -1,15 +1,24 @@
 from datetime import datetime
 from typing import List, Union
 
-from db import db_mysql
-from analysis.analyzer.data_analyzer import DataAnalyzer
+import mysql.connector
 
+from analysis.analyzer.data_analyzer import DataAnalyzer
+from common import const
 
 
 class MysqlDataAnalyzer(DataAnalyzer):
 
     def __init__(self):
-        self.conn = db_mysql.get_conn()
+        self.conn = self.get_conn()
+
+    def get_conn(self):
+        return mysql.connector.connect(
+            host=const.host,
+            user=const.user,
+            password=const.password,
+            database=const.database
+        )
 
     def focal_seq_10(self, _time_range) -> {}:
         with self.conn.cursor(dictionary=True) as cursor:

@@ -1,5 +1,8 @@
 class DataAnalyzer:
 
+    def get_conn(self):
+        raise NotImplementedError
+
     # 总的拍摄张数
     def total_shot(self, time_range) -> int:
         raise NotImplementedError
