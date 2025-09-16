@@ -173,8 +173,9 @@
     <div class="content">
         <div class="stat-item">
             <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
-            <p class="stat-text">在过去的一年里，你在 <span class="highlight" id="days_with_photos">xxx</span>
-                天里拍摄了<span class="highlight" id="total_photos">xxx</span> 张照片。</p>
+            <p class="stat-text">在过去的<span class="highlight" id="pass_days">xxx</span>
+                天里，你总共拍摄了 <span class="highlight" id="days_with_photos">xxx</span>
+                天，拍摄了<span class="highlight" id="total_photos">xxx</span> 张照片。</p>
         </div>
 
         <div class="stat-item">
@@ -280,16 +281,21 @@
                 });
         }
 
-        var time_range = ['2024-01-01 00:00:00', '2025-12-31 23:59:59']
+        var time_range = ['2025-01-01 00:00:00', '2025-12-31 23:59:59']
         // 转换为 Date 对象
         var start = new Date(time_range[0]);
         var end = new Date(time_range[1]);
+        var now = new Date();
+        // 如果截止时间在未来，就用当前时间替代
+        if (end > now) {
+            end = now;
+        }
         // 计算毫秒差
         var diffMs = end - start;
         // 转换成天数（1 天 = 1000*60*60*24 毫秒）
         var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        console.log("期间天数:", diffDays);
-
+        //console.log("期间天数:", diffDays);
+        document.getElementById("pass_days").textContent = diffDays;
         statistics_shot(time_range);
     </script>
 </body>
