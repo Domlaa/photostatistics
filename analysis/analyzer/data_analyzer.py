@@ -1,4 +1,4 @@
-class DataProcessor:
+class DataAnalyzer:
 
     # 总的拍摄张数
     def total_shot(self, time_range) -> int:

@@ -10,8 +10,6 @@ table = "exif"
 负责数据库初始化及数据插入
 """
 
-
-
 def get_conn():
     return mysql.connector.connect(
         host=host,

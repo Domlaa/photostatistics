@@ -16,7 +16,7 @@ def index():
 @app.route('/statistics_shot', methods=['POST'])
 def statistics_shot():
     _time_range = request.json.get('time_range', [])
-    data = analysis.sender(_time_range=_time_range)
+    data = analysis.get_analysis_data(_time_range=_time_range)
     return jsonify(data)
 
 

@@ -2,38 +2,28 @@ from datetime import datetime
 from pyecharts import options as opts
 from pyecharts.charts import Bar, Pie, Calendar, Line
 
-from process.mysql_data_processor import MysqlDataProcessor
+from .analyzer.mysql_data_analyzer import MysqlDataAnalyzer
 
-processor = MysqlDataProcessor()
+analyzer = MysqlDataAnalyzer()
 
-def get_weekday(timestamp):
-    # 将时间戳转换为日期时间对象
-    dt_object = datetime.fromtimestamp(timestamp)
-
-    # 获取星期几，0代表星期一，1代表星期二，以此类推
-    weekday = dt_object.weekday()
-    weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-    return weekdays[weekday]
-
-
-def sender(_time_range):
+def get_analysis_data(_time_range):
 
     s_dt = datetime.strptime(_time_range[0], "%Y-%m-%d %H:%M:%S")
     e_dt = datetime.strptime(_time_range[1], "%Y-%m-%d %H:%M:%S")
-    start_year = s_dt.year
-    end_year = e_dt.year
+    # start_year = s_dt.year
+    # end_year = e_dt.year
 
-    focal_seq_10_map = processor.focal_seq_10(_time_range)
-    shot_calendar_data = processor.shot_calendar(_time_range)
-    lens_use_data = processor.lens_use_rate(_time_range)
-    iso_use_data = processor.iso_use_rate(_time_range)
-    shutter_use_data = processor.shutter_use_rate(_time_range)
-    aperture_use_data = processor.aperture_use_rate(_time_range)
-    hour_data = processor.shot_hour(_time_range)
-    monthly_shot_times = processor.monthly_shot_times(_time_range)
-    focal_top10_data = processor.focal_top10(_time_range)
+    focal_seq_10_map = analyzer.focal_seq_10(_time_range)
+    shot_calendar_data = analyzer.shot_calendar(_time_range)
+    lens_use_data = analyzer.lens_use_rate(_time_range)
+    iso_use_data = analyzer.iso_use_rate(_time_range)
+    shutter_use_data = analyzer.shutter_use_rate(_time_range)
+    aperture_use_data = analyzer.aperture_use_rate(_time_range)
+    hour_data = analyzer.shot_hour(_time_range)
+    monthly_shot_times = analyzer.monthly_shot_times(_time_range)
+    focal_top10_data = analyzer.focal_top10(_time_range)
 
-    total_shot = processor.total_shot(_time_range)
+    total_shot = analyzer.total_shot(_time_range)
     # 找到 value 最大的那一项
     most_productive = max(shot_calendar_data, key=lambda x: x[1])
     fav_focal_range = max(focal_seq_10_map.items(), key=lambda x: x[1])
@@ -237,15 +227,3 @@ def sender(_time_range):
         'statistics_data': statistics_data
     }
 
-
-def get_format_date(timestamp, format_str='%Y-%m-%d') -> str:
-    # 将时间戳转换为 datetime 对象
-    dt_object = datetime.fromtimestamp(timestamp)
-    # 格式化为字符串
-    # formatted_time = dt_object.strftime('%Y-%m-%d %H:%M:%S')
-    return dt_object.strftime(format_str)
-
-
-if __name__ == '__main__':
-    time_range = None
-    data = sender(_time_range=time_range)

@@ -2,33 +2,33 @@ from datetime import datetime
 from typing import List, Union
 
 from db import db_mysql
-from process.data_processor import DataProcessor
+from analysis.analyzer.data_analyzer import DataAnalyzer
 
 
-class MysqlDataProcessor(DataProcessor):
+
+class MysqlDataAnalyzer(DataAnalyzer):
 
     def __init__(self):
         self.conn = db_mysql.get_conn()
 
     def focal_seq_10(self, _time_range) -> {}:
-        cursor = self.conn.cursor(dictionary=True)
-        cursor.execute("""
-        SELECT
-            FLOOR(focal_length/10)*10 AS focal_start,
-            COUNT(*) AS usage_count
-        FROM exif
-        GROUP BY focal_start
-        ORDER BY focal_start DESC;
-        """)
-        rows = cursor.fetchall()
-        cursor.close()
-
-        _map = {}
-        for row in rows:
-            f_start = int(row['focal_start'])
-            key = f"{f_start}-{f_start + 9} mm"
-            _map[key] = row['usage_count']
-        return _map
+        with self.conn.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+            SELECT
+                FLOOR(focal_length/10)*10 AS focal_start,
+                COUNT(*) AS usage_count
+            FROM exif
+            WHERE datetime_original BETWEEN %s AND %s
+            GROUP BY focal_start
+            ORDER BY focal_start DESC;
+            """, _time_range)
+            rows = cursor.fetchall()
+            _map = {}
+            for row in rows:
+                f_start = int(row['focal_start'])
+                key = f"{f_start}-{f_start + 9} mm"
+                _map[key] = row['usage_count']
+            return _map
 
     def focal_top10(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
@@ -162,7 +162,7 @@ class MysqlDataProcessor(DataProcessor):
 
 
 if __name__ == '__main__':
-    processor = MysqlDataProcessor()
+    analyzer = MysqlDataAnalyzer()
 
     time_range = ['2025-01-01 00:00:00', '2025-12-31 23:59:59']
     s_dt = datetime.strptime(time_range[0], "%Y-%m-%d %H:%M:%S")
@@ -170,17 +170,17 @@ if __name__ == '__main__':
     start_year = s_dt.year
     end_year = e_dt.year
 
-    focal_seq_10_map = processor.focal_seq_10(time_range)
-    shot_calendar_data = processor.shot_calendar(time_range)
-    lens_use_data = processor.lens_use_rate(time_range)
-    iso_use_data = processor.iso_use_rate(time_range)
-    shutter_use_data = processor.shutter_use_rate(time_range)
-    aperture_use_data = processor.aperture_use_rate(time_range)
-    hour_data = processor.shot_hour(time_range)
-    monthly_shot_times = processor.monthly_shot_times(time_range)
-    focal_top10_data = processor.focal_top10(time_range)
+    focal_seq_10_map = analyzer.focal_seq_10(time_range)
+    shot_calendar_data = analyzer.shot_calendar(time_range)
+    lens_use_data = analyzer.lens_use_rate(time_range)
+    iso_use_data = analyzer.iso_use_rate(time_range)
+    shutter_use_data = analyzer.shutter_use_rate(time_range)
+    aperture_use_data = analyzer.aperture_use_rate(time_range)
+    hour_data = analyzer.shot_hour(time_range)
+    monthly_shot_times = analyzer.monthly_shot_times(time_range)
+    focal_top10_data = analyzer.focal_top10(time_range)
 
-    total_shot = processor.total_shot(time_range)
+    total_shot = analyzer.total_shot(time_range)
     # 找到 value 最大的那一项
     most_productive = max(shot_calendar_data, key=lambda x: x[1])
     fav_focal_range = max(focal_seq_10_map.items(), key=lambda x: x[1])
@@ -207,4 +207,4 @@ if __name__ == '__main__':
         'fav_shutter': fav_shutter[0],
         'fav_aperture': fav_aperture[0],
     }
-    print(shot_calendar_data)
+    print(focal_seq_10_map)

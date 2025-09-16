@@ -1,11 +1,12 @@
+import hashlib
 import json
-import os
 import subprocess
 from pathlib import Path
-from db import db_mysql
-from db import db_sqlite
-import hashlib
-import platform
+
+from common import utils
+from processor.mysql_data_processor import MysqlDataProcessor
+
+processor = MysqlDataProcessor
 
 # 需要提取的 EXIF 字段
 TAGS = [
@@ -50,7 +51,7 @@ def get_raw_metadata(folder_path, exiftool_path="exiftool"):
 
     return results
 
-def handle_exif_info_array(metadata_list):
+def handle_exif_info_array(metadata_list, processor):
     results = []
     for meta in metadata_list:
         # 按顺序拼接字段值
@@ -68,23 +69,14 @@ def handle_exif_info_array(metadata_list):
             "shutter": meta.get("ExposureTime"),
             "iso": meta.get("ISO"),
             "lens": meta.get("LensModel"),
-            "focal_length": parse_focal_length(meta.get("FocalLength")),
+            "focal_length": utils.parse_focal_length(meta.get("FocalLength")),
             "md5": md5_value,
             "filepath": meta["SourceFile"],
         })
+    processor.save_to_db(data, False)
     # db_mysql.save_to_mysql(data, False)
     # db_sqlite.save_to_sqlite(data, True)
 
-def parse_focal_length(value: str) -> float:
-    if isinstance(value, str):
-        return float(value.replace("mm", "").strip())
-    return float(value)
-
-
-def save_json_file(json_data, filename):
-    # 保存为 JSON 文件
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(json_data, f, ensure_ascii=False, indent=4)
 
 
 
@@ -92,7 +84,9 @@ if __name__ == "__main__":
     data = get_raw_metadata(r"E:\\Photo2024")
     # data = get_raw_metadata(r"/Volumes/one/canon2025")
     print(f"read file: {len(data)}")
-    save_json_file(data, "canon2024.json")
+    # 因为每次读取图片的exif信息，耗时较长，所以建议先读取存为json。
+    # 再尝试存入 DB。
+    utils.save_json_file(data, "canon2024.json")
 
 
 
