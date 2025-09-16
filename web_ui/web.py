@@ -29,7 +29,7 @@ def run(port=21314):
 @app.route('/statistics_shot', methods=['POST'])
 def statistics_shot():
     time_range = request.json.get('time_range', [])
-    data = analysis.sender(time_range=time_range)
+    data = analysis.sender(_time_range=time_range)
     return jsonify(data)
 
 

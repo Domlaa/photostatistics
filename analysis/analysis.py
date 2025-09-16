@@ -1,14 +1,10 @@
-import os
 from datetime import datetime
-
 from pyecharts import options as opts
-from pyecharts.charts import Bar, Pie, HeatMap, Calendar, Line
-from pyecharts.commons.utils import JsCode
+from pyecharts.charts import Bar, Pie, Calendar, Line
 
 from process.mysql_data_processor import MysqlDataProcessor
 
 processor = MysqlDataProcessor()
-
 
 def get_weekday(timestamp):
     # 将时间戳转换为日期时间对象
@@ -20,51 +16,45 @@ def get_weekday(timestamp):
     return weekdays[weekday]
 
 
-def sender(time_range):
-    focal_seq_10_map = processor.focal_seq_10(time_range)
-    shot_calendar_data = processor.shot_calendar(time_range)
-    lens_use_data = processor.lens_use_rate(time_range)
-    iso_use_data = processor.iso_use_rate(time_range)
-    shutter_use_data = processor.shutter_use_rate(time_range)
-    aperture_use_data = processor.aperture_use_rate(time_range)
-    hour_data = processor.shot_hour(time_range)
-    monthly_shot_times = processor.monthly_shot_times(time_range)
-    focal_top10_data = processor.focal_top10(time_range)
+def sender(_time_range):
+    focal_seq_10_map = processor.focal_seq_10(_time_range)
+    shot_calendar_data = processor.shot_calendar(_time_range)
+    lens_use_data = processor.lens_use_rate(_time_range)
+    iso_use_data = processor.iso_use_rate(_time_range)
+    shutter_use_data = processor.shutter_use_rate(_time_range)
+    aperture_use_data = processor.aperture_use_rate(_time_range)
+    hour_data = processor.shot_hour(_time_range)
+    monthly_shot_times = processor.monthly_shot_times(_time_range)
+    focal_top10_data = processor.focal_top10(_time_range)
 
-    total_shot = processor.total_shot(time_range)
-
-    total_shot = processor.total_shot(time_range)
-    days_with_photos = len(shot_calendar_data)
-    most_active_month = max(monthly_shot_times, key=monthly_shot_times.get)
-    photos_in_most_active_month = max(monthly_shot_times.values())
-    favorite_time = max(hour_data, key=hour_data.get)
+    total_shot = processor.total_shot(_time_range)
     # 找到 value 最大的那一项
     most_productive = max(shot_calendar_data, key=lambda x: x[1])
-    most_productive_date = most_productive[0]
-    photos_on_most_productive_day = most_productive[1]
-
-    fav_focal_range_t = max(focal_top10_data.items(), key=lambda x: x[1])
-    fav_focal_range = fav_focal_range_t[0]
+    fav_focal_range = max(focal_seq_10_map.items(), key=lambda x: x[1])
+    # map 里的子项中，某个最大的key/value
+    most_used_focal_length_t = max(focal_top10_data.items(), key=lambda x: x[1])
+    most_used_focal_length = int(most_used_focal_length_t[0])
+    fav_lens = max(lens_use_data, key=lambda x: x[1])
+    fav_iso = max(iso_use_data, key=lambda x: x[1])
+    fav_shutter = max(shutter_use_data, key=lambda x: x[1])
+    fav_aperture = max(aperture_use_data, key=lambda x: x[1])
 
     statistics_data = {
-        'days_with_photos': days_with_photos,
+        'days_with_photos': len(shot_calendar_data),
         'total_photos': total_shot,
-        'most_active_month': most_active_month,
-        'photos_in_most_active_month': photos_in_most_active_month,
-        'favorite_time': favorite_time,
-        'most_productive_date': most_productive_date,
-        'photos_on_most_productive_day': photos_on_most_productive_day,
-        'fav_focal_range': fav_focal_range,
+        'most_active_month': max(monthly_shot_times, key=monthly_shot_times.get),
+        'photos_in_most_active_month': max(monthly_shot_times.values()),
+        'favorite_time': max(hour_data, key=hour_data.get),
+        'most_productive_date': most_productive[0],
+        'photos_on_most_productive_day': most_productive[1],
+        'fav_focal_range': fav_focal_range[0],
+        'most_used_focal_length': f"{most_used_focal_length}mm",
+        'fav_lens': fav_lens[0],
+        'photos_with_fav_lens': fav_lens[1],
+        'fav_iso': fav_iso[0],
+        'fav_shutter': fav_shutter[0],
+        'fav_aperture': fav_aperture[0],
     }
-    # statistics_data = {
-
-    #     'most_used_focal_length': most_used_focal_length,
-    #     'fav_lens': fav_lens,
-    #     'photos_with_fav_lens': photos_with_fav_lens,
-    #     'fav_iso': fav_iso,
-    #     'fav_shutter': fav_shutter,
-    #     'fav_aperture': fav_aperture,
-    # }
 
     focal_seq_10_data_bar = (
         Bar()
@@ -136,7 +126,6 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    # TODO 图例过度导致混乱
     iso_view = (
         Pie()
         .add(
@@ -158,7 +147,6 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    # TODO 图例过度导致混乱
     shutter_view = (
         Pie()
         .add(
@@ -181,7 +169,6 @@ def sender(time_range):
         .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {d}"))  # 标签显示名称+百分比
     )
 
-    # TODO 图例过度导致混乱
     aperture_view = (
         Pie()
         .add(
@@ -256,4 +243,4 @@ def get_format_date(timestamp, format_str='%Y-%m-%d') -> str:
 
 if __name__ == '__main__':
     time_range = None
-    data = sender(time_range=time_range)
+    data = sender(_time_range=time_range)

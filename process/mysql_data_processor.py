@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Union
 
 from db import db_mysql
 from process.data_processor import DataProcessor
@@ -9,7 +9,7 @@ class MysqlDataProcessor(DataProcessor):
     def __init__(self):
         self.conn = db_mysql.get_conn()
 
-    def focal_seq_10(self, time_range) -> {}:
+    def focal_seq_10(self, _time_range) -> {}:
         cursor = self.conn.cursor(dictionary=True)
         cursor.execute("""
         SELECT
@@ -22,14 +22,14 @@ class MysqlDataProcessor(DataProcessor):
         rows = cursor.fetchall()
         cursor.close()
 
-        focal_seq_10_map = {}
+        _map = {}
         for row in rows:
             f_start = int(row['focal_start'])
             key = f"{f_start}-{f_start + 9} mm"
-            focal_seq_10_map[key] = row['usage_count']
-        return focal_seq_10_map
+            _map[key] = row['usage_count']
+        return _map
 
-    def focal_top10(self, time_range) -> {}:
+    def focal_top10(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
             SELECT 
@@ -39,19 +39,19 @@ class MysqlDataProcessor(DataProcessor):
             GROUP BY focal_length
             ORDER BY usage_count DESC
             LIMIT 10;
-            """, time_range)
+            """, _time_range)
             # 二维数组
             rows = cursor.fetchall()
-            map = {row[0]: row[1] for row in rows}
-            return map
+            _map = {row[0]: row[1] for row in rows}
+            return _map
 
-    def total_shot(self, time_range) -> int:
+    def total_shot(self, _time_range) -> int:
         with self.conn.cursor() as cursor:
             cursor.execute("SELECT COUNT(*) FROM exif;")
             (total,) = cursor.fetchone()
             return total
 
-    def shot_calendar(self, time_range) -> List[List[Union[str, int]]]:
+    def shot_calendar(self, _time_range) -> List[List[Union[str, int]]]:
         # start_date = time_range[0]
         # end_date = time_range[1]
         # print(f"{start_date} - {end_date}")
@@ -64,11 +64,11 @@ class MysqlDataProcessor(DataProcessor):
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY DATE(datetime_original)
             ORDER BY cnt
-            """, time_range)
+            """, _time_range)
             rows = cursor.fetchall()
             return [[str(day), int(cnt)] for day, cnt in rows]
 
-    def lens_use_rate(self, time_range) -> {}:
+    def lens_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -77,11 +77,11 @@ class MysqlDataProcessor(DataProcessor):
                 FROM exif
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY lens;
-                  """, time_range)
+                  """, _time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
-    def iso_use_rate(self, time_range) -> {}:
+    def iso_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -91,11 +91,11 @@ class MysqlDataProcessor(DataProcessor):
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY iso
                 ORDER BY iso;
-                """, time_range)
+                """, _time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
-    def shutter_use_rate(self, time_range) -> {}:
+    def shutter_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -105,11 +105,11 @@ class MysqlDataProcessor(DataProcessor):
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY shutter
                 ORDER BY usage_count;
-                """, time_range)
+                """, _time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
-    def aperture_use_rate(self, time_range) -> {}:
+    def aperture_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -119,11 +119,11 @@ class MysqlDataProcessor(DataProcessor):
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY aperture
                 ORDER BY aperture;
-                """, time_range)
+                """, _time_range)
             rows = cursor.fetchall()
             return [(str(name), int(cnt)) for name, cnt in rows]
 
-    def shot_hour(self, time_range) -> {}:
+    def shot_hour(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
             SELECT
@@ -133,12 +133,12 @@ class MysqlDataProcessor(DataProcessor):
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY HOUR(datetime_original)
             ORDER BY hour;
-            """, time_range)
+            """, _time_range)
             rows = cursor.fetchall()
-            map = {row[0]: row[1] for row in rows}
-            return map
+            _map = {row[0]: row[1] for row in rows}
+            return _map
 
-    def monthly_shot_times(self, time_range) -> {}:
+    def monthly_shot_times(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
             cursor.execute("""
             SELECT
@@ -148,10 +148,10 @@ class MysqlDataProcessor(DataProcessor):
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY DATE_FORMAT(datetime_original, '%Y-%m')
             ORDER BY month;
-            """, time_range)
+            """, _time_range)
             rows = cursor.fetchall()
-            map = {row[0]: row[1] for row in rows}
-            return map
+            _map = {row[0]: row[1] for row in rows}
+            return _map
 
 
 if __name__ == '__main__':
@@ -168,23 +168,31 @@ if __name__ == '__main__':
     monthly_shot_times = processor.monthly_shot_times(time_range)
     focal_top10_data = processor.focal_top10(time_range)
 
+    total_shot = processor.total_shot(time_range)
+    # 找到 value 最大的那一项
+    most_productive = max(shot_calendar_data, key=lambda x: x[1])
+    fav_focal_range = max(focal_seq_10_map.items(), key=lambda x: x[1])
+    # map 里的子项中，某个最大的key/value
+    most_used_focal_length_t = max(focal_top10_data.items(), key=lambda x: x[1])
+    fav_lens = max(lens_use_data, key=lambda x: x[1])
+    fav_iso = max(iso_use_data, key=lambda x: x[1])
+    fav_shutter = max(shutter_use_data, key=lambda x:x[1])
+    fav_aperture = max(aperture_use_data, key=lambda x:x[1])
 
-    print()
-
-    # statistics_data = {
-    #     'days_with_photos': days_with_photos,
-    #     'total_photos': total_shot,
-    #     'most_active_month': most_active_month,
-    #     'photos_in_most_active_month': photos_in_most_active_month,
-    #     'favorite_time': favorite_time,
-    #     'most_productive_date': most_productive_date,
-    #     'photos_on_most_productive_day': photos_on_most_productive_day,
-    #     'fav_focal_range': fav_focal_range,
-    #     'most_used_focal_length': most_used_focal_length,
-    #     'fav_lens': fav_lens,
-    #     'photos_with_fav_lens': photos_with_fav_lens,
-    #     'fav_iso': fav_iso,
-    #     'fav_shutter': fav_shutter,
-    #     'fav_aperture': fav_aperture,
-    # }
-    # print(statistics_data)
+    statistics_data = {
+        'days_with_photos': len(shot_calendar_data),
+        'total_photos': total_shot,
+        'most_active_month': max(monthly_shot_times, key=monthly_shot_times.get),
+        'photos_in_most_active_month': max(monthly_shot_times.values()),
+        'favorite_time': max(hour_data, key=hour_data.get),
+        'most_productive_date': most_productive[0],
+        'photos_on_most_productive_day': most_productive[1],
+        'fav_focal_range': fav_focal_range[0],
+        'most_used_focal_length': int(most_used_focal_length_t[0]),
+        'fav_lens': fav_lens[0],
+        'photos_with_fav_lens': fav_lens[1],
+        'fav_iso': fav_iso[0],
+        'fav_shutter': fav_shutter[0],
+        'fav_aperture': fav_aperture[0],
+    }
+    print(statistics_data)
