@@ -6,8 +6,19 @@ from pathlib import Path
 from common import utils
 from common.timeit import timeit
 from db.ExifInfo import ExifInfo
+import platform
 
-exiftool = "./exiftool/exiftool"
+exiftool = "./exiftool/mac/exiftool"
+
+
+system = platform.system()
+if system == "Windows":
+    exiftool = "./exiftool/exiftool"
+elif system == "Darwin":
+    exiftool = "./exiftool/mac/exiftool"
+elif system == "Linux":
+    #todo
+    pass
 
 # 需要提取的 EXIF 字段
 TAGS = [

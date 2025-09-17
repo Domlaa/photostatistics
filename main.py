@@ -7,6 +7,7 @@ os.makedirs('./data', exist_ok=True)
 
 if __name__ == "__main__":
     _path = r"C:\Users\ning\Pictures\Photo2025\test"
+    _path = r"/Volumes/one/canon2025/0501"
     _file_name = "./data/0908.json"
 
     exif_data = process.get_exif_data(_path)
