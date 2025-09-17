@@ -21,12 +21,12 @@ class MysqlDataAnalyzer(DataAnalyzer):
         )
 
     def focal_seq_10(self, _time_range) -> {}:
-        with self.conn.cursor(dictionary=True) as cursor:
-            cursor.execute("""
+        with self.conn.cursor() as cursor:
+            cursor.execute(f"""
             SELECT
                 FLOOR(focal_length/10)*10 AS focal_start,
                 COUNT(*) AS usage_count
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY focal_start
             ORDER BY focal_start DESC;
@@ -34,18 +34,18 @@ class MysqlDataAnalyzer(DataAnalyzer):
             rows = cursor.fetchall()
             _map = {}
             for row in rows:
-                f_start = int(row['focal_start'])
+                f_start = int(row[0])
                 key = f"{f_start}-{f_start + 9} mm"
-                _map[key] = row['usage_count']
+                _map[key] = row[1]
             return _map
 
     def focal_top10(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
             SELECT 
                 focal_length, 
                 COUNT(*) AS usage_count
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY focal_length
             ORDER BY usage_count DESC
@@ -58,10 +58,10 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def total_shot(self, _time_range) -> int:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
             SELECT 
                 COUNT(*) 
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s;
             """, _time_range)
             (total,) = cursor.fetchone()
@@ -72,11 +72,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
         # end_date = time_range[1]
         # print(f"{start_date} - {end_date}")
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
             SELECT 
                 DATE(datetime_original) as day,
                 COUNT(*) as cnt
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY DATE(datetime_original)
             ORDER BY cnt
@@ -86,11 +86,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def lens_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT 
                     lens, 
                     COUNT(*) AS usage_count
-                FROM exif
+                FROM {const.table}
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY lens;
                   """, _time_range)
@@ -99,11 +99,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def iso_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT 
                     iso, 
                     COUNT(*) AS usage_count
-                FROM exif
+                FROM {const.table}
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY iso
                 ORDER BY iso;
@@ -113,11 +113,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def shutter_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT 
                     shutter, 
                     COUNT(*) AS usage_count
-                FROM exif
+                FROM {const.table}
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY shutter
                 ORDER BY usage_count;
@@ -127,11 +127,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def aperture_use_rate(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
                 SELECT 
                     aperture, 
                     COUNT(*) AS usage_count
-                FROM exif
+                FROM {const.table}
                 WHERE datetime_original BETWEEN %s AND %s
                 GROUP BY aperture
                 ORDER BY aperture;
@@ -141,11 +141,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def shot_hour(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
             SELECT
                 HOUR(datetime_original) AS hour,
                 COUNT(*) AS usage_count
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY HOUR(datetime_original)
             ORDER BY hour;
@@ -156,11 +156,11 @@ class MysqlDataAnalyzer(DataAnalyzer):
 
     def monthly_shot_times(self, _time_range) -> {}:
         with self.conn.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(f"""
             SELECT
                 DATE_FORMAT(datetime_original, '%Y-%m') AS month,
                 COUNT(*) AS photos
-            FROM exif
+            FROM {const.table}
             WHERE datetime_original BETWEEN %s AND %s
             GROUP BY DATE_FORMAT(datetime_original, '%Y-%m')
             ORDER BY month;

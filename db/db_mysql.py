@@ -46,7 +46,7 @@ def create_table(conn):
     shutter VARCHAR(50) NULL,
     iso INT NULL,
     lens VARCHAR(255) NULL,
-    focal_length FLOAT NULL,
+    focal_length INT NULL,
     filepath TEXT
     );
     """
