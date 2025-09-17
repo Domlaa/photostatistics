@@ -4,7 +4,10 @@ import subprocess
 from pathlib import Path
 
 from common import utils
+from common.timeit import timeit
 from db.ExifInfo import ExifInfo
+
+exiftool = "./exiftool/exiftool"
 
 # 需要提取的 EXIF 字段
 TAGS = [
@@ -24,7 +27,8 @@ raw_ext_list = {".cr2", ".cr3", ".nef", ".arw", ".orf", ".rw2", ".dng"}
 batch_size = 100
 
 
-def get_raw_metadata(folder_path, exiftool_path="exiftool"):
+@timeit
+def get_raw_metadata(folder_path):
     folder = Path(folder_path)
     files = [
         str(f)
@@ -41,12 +45,15 @@ def get_raw_metadata(folder_path, exiftool_path="exiftool"):
     for i in range(0, len(files), batch_size):
         batch = files[i:i + batch_size]
         print(f"reading {i}...")
-
-        cmd = [exiftool_path, "-j"] + [f"-{tag}" for tag in TAGS] + batch
+        # -j 代表 json格式输出。
+        # -后面接需要输出的标签
+        # 最后接文件名，这里为数组
+        cmd = [exiftool, "-j"] + [f"-{tag}" for tag in TAGS] + batch
         # print(f"cmd: {cmd}")
         result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         # print(f"result: {result.stdout}")
-        metadata_list = json.loads(result.stdout)
+        metadata_list = json.loads(result.stdout)  # 固定数量的exif信息，列表
+        # print(f"metadata_list: {metadata_list}")
         results.extend(metadata_list)
 
     return results
@@ -59,19 +66,54 @@ def handle_exif_info_array(metadata_list):
         concat_str = "|".join(str(meta.get(t, "")) for t in TAGS)
         # 生成 MD5
         md5_value = hashlib.md5(concat_str.encode("utf-8")).hexdigest()
-        print(f"concat: {concat_str}, md5: {md5_value}")
+        # print(f"concat: {concat_str}, md5: {md5_value}")
         # print(f"meta: {meta}")
-        results.append(
-            ExifInfo(
-                model=meta.get("Model"),
-                filename=Path(meta["SourceFile"]).name,
-                datetime=meta.get("SubSecDateTimeOriginal"),
-                aperture=meta.get("FNumber"),
-                shutter=meta.get("ExposureTime"),
-                iso=meta.get("ISO"),
-                lens=meta.get("LensModel"),
-                focal_length=utils.parse_focal_length(meta.get("FocalLength")),
-                md5=md5_value,
-                filepath=meta["SourceFile"],
-            )
-        )
+        focal_length_float = utils.parse_focal_length(meta.get("FocalLength"))
+        results.append(parse_exif_map(meta, md5_value, focal_length_float))
+    return results
+
+
+def parse_exif_model(meta, md5_value, focal_length_float):
+    return ExifInfo(
+        model=meta.get("Model"),
+        filename=Path(meta["SourceFile"]).name,
+        datetime=meta.get("SubSecDateTimeOriginal"),
+        aperture=meta.get("FNumber"),
+        shutter=meta.get("ExposureTime"),
+        iso=meta.get("ISO"),
+        lens=meta.get("LensModel"),
+        focal_length=int(focal_length_float),
+        md5=md5_value,
+        filepath=meta["SourceFile"],
+    )
+
+
+def parse_exif_map(meta, md5_value, focal_length_float) -> {}:
+    return {
+        "model": meta.get("Model"),
+        "filename": Path(meta["SourceFile"]).name,
+        "datetime": meta.get("SubSecDateTimeOriginal"),
+        "aperture": meta.get("FNumber"),
+        "shutter": meta.get("ExposureTime"),
+        "iso": meta.get("ISO"),
+        "lens": meta.get("LensModel"),
+        "focal_length": int(focal_length_float),
+        "md5": md5_value,
+        "filepath": meta["SourceFile"],
+    }
+
+
+@timeit
+def get_metadata(folder_path):
+    results = []
+    cmd = [exiftool, "-r", "-j", "-ext", "CR2"] + [f"-{tag}" for tag in TAGS] + [folder_path]
+    print(f"cmd: {cmd}")
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    metadata_list = json.loads(result.stdout)
+    utils.save_json_file(metadata_list, "./data/a.json")
+    return results
+
+
+def get_exif_data(_path):
+    metadata_list = get_raw_metadata(_path)
+    return handle_exif_info_array(metadata_list)

@@ -1,10 +1,10 @@
 import json
 
 
-def parse_focal_length(value: str) -> int:
+def parse_focal_length(value: str) -> float:
     if isinstance(value, str):
-        return int(value.replace("mm", "").strip())
-    return int(value)
+        return float(value.replace("mm", "").strip())
+    return float(value)
 
 
 def save_json_file(json_data, filename):
