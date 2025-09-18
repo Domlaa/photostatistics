@@ -6,23 +6,14 @@ from pathlib import Path
 from common import utils
 from common.timeit import timeit
 from db.ExifInfo import ExifInfo
-import platform
 
 exiftool = "./exiftool/mac/exiftool"
 
-
-system = platform.system()
-if system == "Windows":
+if utils.is_windows():
     exiftool = "./exiftool/exiftool"
-elif system == "Darwin":
-    exiftool = "./exiftool/mac/exiftool"
-elif system == "Linux":
-    #todo
-    pass
 
 # 需要提取的 EXIF 字段
 TAGS = [
-    # "Make",                         # 相机品牌
     # "FileName",                     # 文件名
     "Model",  # 相机型号
     # "DateTimeOriginal",             # 拍摄日期
@@ -38,8 +29,39 @@ raw_ext_list = {".cr2", ".cr3", ".nef", ".arw", ".orf", ".rw2", ".dng"}
 batch_size = 100
 
 
+def get_exif_data(_path):
+    metadata_list = read_raw_metadata(_path)
+    return handle_exif_info_array(metadata_list)
+
+
 @timeit
-def get_raw_metadata(folder_path):
+def save_metadata_by_csv(folder_path: str, csv_path: str):
+    folder = Path(folder_path)
+    files = [
+        str(f)
+        for f in folder.rglob("*")
+        if f.suffix.lower() in raw_ext_list and not f.name.startswith("._")
+    ]
+    if not files:
+        return []
+
+    print(f"find {len(files)} RAW file")
+    csv_file = Path(csv_path)
+
+    # 分批执行，避免命令过长
+    for i in range(0, len(files), batch_size):
+        each_file_list = files[i:i + batch_size]
+        print(f"reading {i}...")
+        cmd = [exiftool, "-csv"] + [f"-{tag}" for tag in TAGS] + each_file_list
+        print(f"cmd: {cmd}")
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+        print(f"csv data: {result.stdout}")
+        # utils.save_csv_file(result.stdout, csv_path, csv_file.exists())
+    return None
+
+
+@timeit
+def read_raw_metadata(folder_path: str):
     folder = Path(folder_path)
     files = [
         str(f)
@@ -54,19 +76,18 @@ def get_raw_metadata(folder_path):
 
     # 分批执行，避免命令过长
     for i in range(0, len(files), batch_size):
-        batch = files[i:i + batch_size]
+        each_file_list = files[i:i + batch_size]
         print(f"reading {i}...")
         # -j 代表 json格式输出。
         # -后面接需要输出的标签
         # 最后接文件名，这里为数组
-        cmd = [exiftool, "-j"] + [f"-{tag}" for tag in TAGS] + batch
+        cmd = [exiftool, "-j"] + [f"-{tag}" for tag in TAGS] + each_file_list
         # print(f"cmd: {cmd}")
         result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         # print(f"result: {result.stdout}")
         metadata_list = json.loads(result.stdout)  # 固定数量的exif信息，列表
         # print(f"metadata_list: {metadata_list}")
         results.extend(metadata_list)
-
     return results
 
 
@@ -124,7 +145,3 @@ def get_metadata(folder_path):
     utils.save_json_file(metadata_list, "./data/a.json")
     return results
 
-
-def get_exif_data(_path):
-    metadata_list = get_raw_metadata(_path)
-    return handle_exif_info_array(metadata_list)
